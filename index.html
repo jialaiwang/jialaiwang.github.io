@@ -1,75 +1,475 @@
 <!DOCTYPE html>
-<html lang="en-US">
-  <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jialai Wang (王佳来)</title>
+    <style>
+        /* --- CSS STYLING --- */
+        body {
+            margin: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
 
-<!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>Jialai Wang (王佳来)</title>
-<meta name="generator" content="Jekyll v3.8.5" />
-<meta property="og:title" content="Jialai Wang (王佳来)" />
-<meta property="og:locale" content="en_US" />
-<link rel="canonical" href="https://jialaiwang.github.io/" />
-<meta property="og:url" content="https://jialaiwang.github.io/" />
-<meta property="og:site_name" content="jialaiwang.github.io" />
-<script type="application/ld+json">
-{"headline":"Jialai Wang (王佳来)","@type":"WebSite","url":"https://jialaiwang.github.io/","name":"jialaiwang.github.io","@context":"https://github.com"}</script>
-<!-- End Jekyll SEO tag -->
+        /* Fixed 3D Canvas */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+        }
 
-    <link rel="stylesheet" href="/assets/css/style.css">
-  </head>
-  <body>
-    
-    <div class="container-lg px-3 my-5 markdown-body">
+        /* Floating Titles */
+        .overlay-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            opacity: 0; /* Hidden by default */
+            pointer-events: none;
+            z-index: 10;
+            width: 100%;
+            transition: opacity 0.5s ease;
+        }
 
-      <div class="header border-bottom">
-          <div class="h1"><a href="" style="color:black; text-decoration:none">Jialai Wang (王佳来)</a></div>
-          <nav class="text-right">
-              Home | 
-              <a href="https://mailustceducn-my.sharepoint.com/:b:/g/personal/jialaiwang_mail_ustc_edu_cn/ESqw2t-jvxdKjL2rpvWlLqUBnwlrdSPYfp0cXccmNC2yxQ?e=AUlDmW">CV</a> | 
-              <a href="#research">Research</a> | 
-              <a href="#contact">Contact</a>
-          </nav>
-      </div>
-      
-      <h3 id="welcome">Welcome!</h3>
-      
-      <dl style="float: right; width: 360px;">
-          <dd><a href=""><img class="" src="July.jpg"></a></dd>
-      </dl>
-      
-      <p>I am Jialai Wang (王佳来, pronounced as <a href="https://translate.google.com/#view=home&amp;op=translate&amp;sl=zh-CN&amp;tl=en&amp;text=%E7%8E%8B%E4%BD%B3%E6%9D%A5">Wáng Jiā Lái</a>), and I am currently a graduate student at <strong><a href="https://astro.ustc.edu.cn" style="color:DodgerBlue; background:AliceBlue; text-decoration:none">Department of Astronomy, University of Science and Technology of China</a></strong>.</p>
-      
-      <p>I have a keen interest in fields within astronomy, with a focus on active galactic nuclei (AGN), galaxy formation and evolution, deep sky surveys, and astronomical instrumentation. I am particularly excited about contributing to significant scientific collaborations. At present, I am a member of the Subaru <a href="https://pfs.naoj.jp/">Prime Focus Spectrograph (PFS)</a> Collaboration. I am also actively involved in the <a href="https://wfst.github.io/">Wide Field Survey Telescope (WFST)</a> which is often referred to as the "mini-LSST" in the Northern Hemisphere.</p>
+        .main-title {
+            font-size: 3.5rem;
+            letter-spacing: 4px;
+            font-weight: 300;
+/*             text-transform: uppercase; */
+            margin: 0;
+            text-shadow: 0 0 20px rgba(0,0,0,1);
+        }
 
-      <p id="research">Currently, I am buliding a comprehensive catalog of AGN-host dwarf galaxies using multi-wavelength data, with a special emphasis on utilizing H I data from the <a href="https://fast.bao.ac.cn/">Five-hundred-meter Aperture Spherical radio Telescope (FAST)</a> and the <a href="http://egg.astro.cornell.edu/alfalfa/index.php">Arecibo Legacy Fast ALFA (ALFALFA) Survey</a> to statistically analyse the effects of AGN feedback on the gas environment in dwarf galaxies. Additionally, I am working with the <a href="https://personal.science.psu.edu/wnb3/xmmservs/xmmservs.html">XMM-Spitzer Extragalactic Representative Volume Survey (XMM-SERVS)</a> data to study AGN and their host galaxies. Looking ahead, I am eagerly anticipating the opportunity to expand my expertise in the areas of statistical methods and machine learning.</p>
-      
-      <p>Furthermore, I am actively engaged in the promotion of astronomy among the wider public. I have dedicated effort to organizing various activities on and off the campus, such as seminars, lectures, and public observations. Astrophotography is also a personal passion of mine. The captured stunning images not only fuel my own curiosity but also serve as effective tools for sharing the beauty of universe with the public.</p>
-      
-      <p>You can download my curriculum vitae [<a href="https://ustc0-my.sharepoint.com/:b:/g/personal/jialai_wang_ustc_edu/Ec6izb94JBlEvX6EwhE1ZSQBW5_P4XQR5RGt91OJqQQS1A?e=7fRW8a">here</a>].</p>
+        .sub-title {
+            font-size: 1.5rem;
+            margin-top: 15px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .color-bh { color: #ffaa00; }
+        .color-host { color: #4cc9f0; }
+
+        /* Scroll Track */
+        .scroll-track { height: 700vh; }
+
+        /* Final Content Section */
+        #bio-section {
+            position: relative;
+            /* Gradient to ensure text is readable against stars */
+            background: linear-gradient(to top, #050505 10%, rgba(0,0,0,0.9) 80%, transparent 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 1s;
+            padding: 50px 20px;
+        }
+
+        .bio-container { max-width: 800px; text-align: left; }
+        .bio-container h1 { font-size: 3rem; margin-bottom: 0.2em; }
+        .bio-container h3 { color: #888; margin-bottom: 2em; }
+        .bio-container p { font-size: 1.1rem; line-height: 1.6; color: #ccc; }
         
-      <h3 id="contact">Contact Me</h3>
-      
-      <p>I am always happy to discuss science and collaborate with people. Feel free to contact me if you are interested in my research or have any questions.</p>
-      
-      <p>Email: <a href="mailto:jialaiwang@mail.ustc.edu.cn">jialaiwang@mail.ustc.edu.cn</a></p>
+        .tag { 
+            display: inline-block; border: 1px solid #555; 
+            padding: 5px 12px; border-radius: 20px; 
+            font-size: 0.8rem; margin-right: 8px; color: #aaa;
+        }
+        
+        /* --- BUTTON LINKS STYLING --- */
+        .links-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 40px;
+        }
 
-      <p>ORCID: <a href="https://orcid.org/0009-0001-9170-3363">0009-0001-9170-3363</a></p>
-      
-      <p>Github: <a href="https://github.com/jialaiwang">Jialai Wang</a></p>
-      
-      <p class="text-right text-gray">LAST UPDATE: October 2025</p>
-      
-      <div class="footer border-top border-gray-light mt-5 pt-3 text-left text-gray">
-          University of Science and Technology of China, <br>
-          96 Jinzhai Road, Baohe District, <br>
-          Hefei, Anhui, 230026, China
-      </div>
+        .btn {
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 12px 25px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(0,0,0,0.5);
+            display: inline-block;
+        }
 
+        .btn:hover {
+            border-color: #fff;
+            background: #fff;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+        }
+
+        .btn-primary {
+            border-color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .profile-pic {
+    width: 180px;            /* Size of the circle */
+    height: 180px;
+    border-radius: 50%;      /* Makes it a perfect circle */
+    object-fit: cover;       /* Ensures photo doesn't stretch if not square */
+    border: 4px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);       /* Shadow for depth */
+    margin-bottom: 25px;     /* Space between picture and name */
+    transition: transform 0.3s ease;
+        }
+
+        .profile-pic:hover {
+    transform: scale(1.05);  /* Slight zoom on hover */
+    border-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <!-- STAGE 1 TEXT -->
+    <div id="text-engine" class="overlay-text">
+        <h1 class="main-title">From The Engine</h1>
+        <div class="sub-title color-bh">Central Black Hole</div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
-    <script>anchors.add();</script>
-    
-  </body>
+
+    <!-- STAGE 2 TEXT -->
+    <div id="text-host" class="overlay-text">
+        <h1 class="main-title">To The Host</h1>
+        <div class="sub-title color-host">Dwarf Galaxy</div>
+    </div>
+
+    <div class="scroll-track"></div>
+
+    <!-- STAGE 3 BIO -->
+    <div id="bio-section">
+        <div class="bio-container">
+            <img src="July.jpg" alt="Jialai Wang" class="profile-pic">
+            
+            <h1>Jialai Wang (王佳来)</h1>
+            <h3>Welcome!</h3>
+            <p>
+                I am Jialai Wang (王佳来, pronounced as <a href="https://translate.google.com/#view=home&amp;op=translate&amp;sl=zh-CN&amp;tl=en&amp;text=%E7%8E%8B%E4%BD%B3%E6%9D%A5" style="color:White; text-decoration:none">Wáng Jiā Lái</a>), and I am currently a graduate student at <strong><a href="https://astro.ustc.edu.cn" style="color:White; text-decoration:none">Department of Astronomy, University of Science and Technology of China</a></strong>.
+            </p>
+            <p>
+                I have a keen interest in fields within astronomy, with a focus on active galactic nuclei (AGN), galaxy formation and evolution, deep sky surveys, and astronomical instrumentation. I am particularly excited about contributing to significant scientific collaborations. At present, I am a member of the Subaru <a href="https://pfs.naoj.jp/" style="color:White; text-decoration:none">Prime Focus Spectrograph (PFS)</a> Collaboration. I am also actively involved in the <a href="https://wfst.github.io/" style="color:White; text-decoration:none">Wide Field Survey Telescope (WFST)</a> which is often referred to as the "mini-LSST" in the Northern Hemisphere.
+            </p>
+            <p>
+                Currently, I am buliding a comprehensive catalog of AGN-host dwarf galaxies using multi-wavelength data, with a special emphasis on utilizing H I data from the <a href="https://fast.bao.ac.cn/" style="color:White; text-decoration:none">Five-hundred-meter Aperture Spherical radio Telescope (FAST)</a> and the <a href="http://egg.astro.cornell.edu/alfalfa/index.php" style="color:White; text-decoration:none">Arecibo Legacy Fast ALFA (ALFALFA) Survey</a> to statistically analyse the effects of AGN feedback on the gas environment in dwarf galaxies. Additionally, I am working with the <a href="https://personal.science.psu.edu/wnb3/xmmservs/xmmservs.html" style="color:White; text-decoration:none">XMM-Spitzer Extragalactic Representative Volume Survey (XMM-SERVS)</a> data to study AGN and their host galaxies. Looking ahead, I am eagerly anticipating the opportunity to expand my expertise in the areas of statistical methods and machine learning.
+            </p>
+            <p>
+                Furthermore, I am actively engaged in the promotion of astronomy among the wider public. I have dedicated effort to organizing various activities on and off the campus, such as seminars, lectures, and public observations. Astrophotography is also a personal passion of mine. The captured stunning images not only fuel my own curiosity but also serve as effective tools for sharing the beauty of universe with the public.
+            </p>
+            <p>
+                I am always happy to discuss science and collaborate with people. Feel free to contact me if you are interested in my research or have any questions.
+            </p>
+            <!-- ACADEMIC LINKS -->
+            <div class="links-grid">
+                <a href="https://ustc0-my.sharepoint.com/:b:/g/personal/jialai_wang_ustc_edu/Ec6izb94JBlEvX6EwhE1ZSQBW5_P4XQR5RGt91OJqQQS1A?e=7fRW8a" class="btn btn-primary">Download CV</a>
+                <a href="https://ui.adsabs.harvard.edu/" target="_blank" class="btn">Publications (ADS)</a>
+                <a href="https://orcid.org/0009-0001-9170-3363" target="_blank" class="btn">ORCID</a>
+                <a href="https://github.com/jialaiwang" target="_blank" class="btn">GitHub</a>
+                <a href="mailto:jialaiwang@mail.ustc.edu.cn" class="btn">Email Me</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // --- 1. SETUP ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.0005); // Deep space fog
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // --- 2. CREATE OBJECTS ---
+
+        // >>> GROUP 1: THE ENGINE (Black Hole) <<<
+        const bhGroup = new THREE.Group();
+        
+        // 1a. Event Horizon
+        const bhMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(1.5, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0x000000 })
+        );
+        bhGroup.add(bhMesh);
+
+        // 1b. Accretion Disk
+        const diskGeo = new THREE.BufferGeometry();
+        const diskCount = 5000;
+        const diskPos = [];
+        const diskColors = [];
+        const colCenter = new THREE.Color(0xffaa00);
+        const colEdge = new THREE.Color(0xaa0000);
+
+        for(let i=0; i<diskCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = 2.0 + Math.random() * 5.0; // Radius
+            const x = Math.cos(angle) * r;
+            const z = Math.sin(angle) * r;
+            const y = (Math.random() - 0.5) * 0.15; // Thin disk
+            diskPos.push(x, y, z);
+
+            // Gradient color
+            const alpha = (r - 2.0) / 5.0;
+            const c = colCenter.clone().lerp(colEdge, alpha);
+            diskColors.push(c.r, c.g, c.b);
+        }
+        diskGeo.setAttribute('position', new THREE.Float32BufferAttribute(diskPos, 3));
+        diskGeo.setAttribute('color', new THREE.Float32BufferAttribute(diskColors, 3));
+        const diskMat = new THREE.PointsMaterial({ size: 0.08, vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, opacity: 1 });
+        const accretionDisk = new THREE.Points(diskGeo, diskMat);
+        bhGroup.add(accretionDisk);
+        
+        scene.add(bhGroup);
+
+
+        // >>> GROUP 2: THE HOST (Dwarf Galaxy) <<<
+        const hostGroup = new THREE.Group();
+        
+        const hostGeo = new THREE.BufferGeometry();
+        const hostCount = 8000;
+        const hostPos = [];
+        
+        for(let i=0; i<hostCount; i++) {
+            // Spheroidal distribution (Dwarf)
+            const r = Math.random() * 60 + 5; 
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            
+            // Irregular shape
+            let x = r * Math.sin(phi) * Math.cos(theta);
+            let y = (r * Math.sin(phi) * Math.sin(theta)) * 0.7; // Flattened Y
+            let z = r * Math.cos(phi);
+
+            hostPos.push(x, y, z);
+        }
+        hostGeo.setAttribute('position', new THREE.Float32BufferAttribute(hostPos, 3));
+        const hostMat = new THREE.PointsMaterial({ 
+            color: 0x88ccff, 
+            size: 0.3, 
+            transparent: true, 
+            opacity: 0, // Start invisible
+            blending: THREE.AdditiveBlending 
+        });
+        const dwarfGalaxy = new THREE.Points(hostGeo, hostMat);
+        hostGroup.add(dwarfGalaxy);
+        scene.add(hostGroup);
+
+
+        // >>> GROUP 3: THE FIELD (Spirals & Ellipticals) <<<
+        const fieldGroup = new THREE.Group();
+        const galaxies = []; // Array to store individual galaxy objects for rotation
+
+        // Helper: Create Blue Spiral Galaxy
+        function createSpiral() {
+            const g = new THREE.BufferGeometry();
+            const count = 600;
+            const pos = [];
+            
+            // Logarithmic spiral arms
+            const arms = 2;
+            for(let i=0; i<count; i++) {
+                // Randomize which arm
+                const armOffset = (i % arms) * ((Math.PI * 2) / arms);
+                const dist = Math.random(); // 0 to 1
+                
+                // Spiral math
+                const angle = armOffset + (dist * Math.PI * 4); // wind 2 times
+                const r = dist * 15; // Scale size
+                
+                // Add fuzziness
+                const fuzz = (Math.random() - 0.5) * (r * 0.4); 
+                
+                const x = Math.cos(angle) * r + fuzz;
+                const z = Math.sin(angle) * r + fuzz;
+                const y = (Math.random() - 0.5) * 1.5; // Flat disk
+
+                pos.push(x, y, z);
+            }
+            g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+            const m = new THREE.PointsMaterial({ color: 0x44aaff, size: 0.6, transparent: true, opacity: 0 }); // Blue
+            return new THREE.Points(g, m);
+        }
+
+        // Helper: Create Orange Elliptical Galaxy
+        function createElliptical() {
+            const g = new THREE.BufferGeometry();
+            const count = 600;
+            const pos = [];
+            for(let i=0; i<count; i++) {
+                // Random sphere, denser in middle
+                const r = Math.pow(Math.random(), 3) * 12; // Power for core density
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+
+                const x = r * Math.sin(phi) * Math.cos(theta);
+                const y = r * Math.sin(phi) * Math.sin(theta) * 0.8; // Slightly oblong
+                const z = r * Math.cos(phi);
+                
+                pos.push(x, y, z);
+            }
+            g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+            const m = new THREE.PointsMaterial({ color: 0xff8822, size: 0.8, transparent: true, opacity: 0 }); // Orange
+            return new THREE.Points(g, m);
+        }
+
+        // Generate Field
+        for(let i=0; i<150; i++) {
+            const isSpiral = Math.random() > 0.4; // 60% Spirals
+            const gal = isSpiral ? createSpiral() : createElliptical();
+            
+            // Random Position far away
+            const dist = 400 + Math.random() * 1000;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            
+            gal.position.x = dist * Math.sin(phi) * Math.cos(theta);
+            gal.position.y = dist * Math.sin(phi) * Math.sin(theta);
+            gal.position.z = dist * Math.cos(phi);
+
+            // Look at center to face camera roughly
+            gal.lookAt(0,0,0);
+            
+            galaxies.push(gal);
+            fieldGroup.add(gal);
+        }
+        scene.add(fieldGroup);
+
+
+        // --- 3. LOGIC CONTROLLER ---
+
+        const textEngine = document.getElementById('text-engine');
+        const textHost = document.getElementById('text-host');
+        const bioSection = document.getElementById('bio-section');
+
+        camera.position.set(0, 3, 10);
+        camera.lookAt(0,0,0);
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const pct = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+
+            // --- ZOOM LOGIC ---
+            // Non-linear zoom out
+            const zoom = 10 + (Math.pow(pct, 2.5) * 800);
+            camera.position.z = zoom;
+            camera.position.y = 3 + pct * 50;
+
+            // --- VISIBILITY LOGIC (Fading stages) ---
+            
+            // STAGE 1: BLACK HOLE (0% -> 25%)
+            // Fades out between 20% and 30%
+            let bhOpacity = 1;
+            if(pct > 0.2) bhOpacity = 1 - ((pct - 0.2) * 10); // Quick fade
+            if(bhOpacity < 0) bhOpacity = 0;
+            
+            // Apply Opacity to BH children
+            bhMesh.material.transparent = true; // Ensure transparent is set
+            bhMesh.material.opacity = bhOpacity;
+            accretionDisk.material.opacity = bhOpacity;
+            
+            // Text 1: "From The Engine"
+            // Shows 10-25%, fades with BH
+            let text1Op = 0;
+            if(pct > 0.05 && pct < 0.25) text1Op = 1;
+            if(pct > 0.2) text1Op = bhOpacity; // Sync text fade with object fade
+            textEngine.style.opacity = text1Op;
+
+
+            // STAGE 2: DWARF GALAXY (25% -> 55%)
+            // Fades IN between 20% and 30%
+            // Fades OUT between 50% and 60%
+            let hostOpacity = 0;
+            
+            // Fade In
+            if(pct > 0.2 && pct < 0.3) hostOpacity = (pct - 0.2) * 10;
+            else if(pct >= 0.3 && pct < 0.5) hostOpacity = 1;
+            // Fade Out
+            else if(pct >= 0.5) hostOpacity = 1 - ((pct - 0.5) * 10);
+            
+            if(hostOpacity < 0) hostOpacity = 0;
+            if(hostOpacity > 1) hostOpacity = 1;
+
+            dwarfGalaxy.material.opacity = hostOpacity;
+
+            // Text 2: "To The Host"
+            // Visible when Host is fully visible
+            let text2Op = 0;
+            if(pct > 0.35 && pct < 0.5) text2Op = 1;
+            else if(pct >= 0.5) text2Op = hostOpacity; // Sync fade out
+            textHost.style.opacity = text2Op;
+
+
+            // STAGE 3: FIELD GALAXIES (60% -> 100%)
+            // Fades IN between 55% and 70%
+            let fieldOpacity = 0;
+            if(pct > 0.55) fieldOpacity = (pct - 0.55) * 5;
+            if(fieldOpacity > 1) fieldOpacity = 1;
+
+            // Apply to all galaxies in the field
+            galaxies.forEach(gal => {
+                gal.material.opacity = fieldOpacity;
+            });
+
+            // BIO SECTION
+            // Fades in at very end
+            if(pct > 0.6) bioSection.style.opacity = 1;
+            else bioSection.style.opacity = 0;
+
+        });
+
+        // --- 4. ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Spin Engine
+            accretionDisk.rotation.y -= 0.04;
+
+            // Spin Host
+            dwarfGalaxy.rotation.y -= 0.002;
+
+            // Spin Field (Overall universe drift)
+            fieldGroup.rotation.y += 0.0005;
+
+            // Spin Individual Galaxies in the field (Local rotation)
+            galaxies.forEach((gal, index) => {
+                // Rotate on their own axis
+                gal.rotation.z += 0.005 * (index % 2 === 0 ? 1 : -1);
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
 </html>
